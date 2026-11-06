@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaStore - Modern E-Commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-xl">
+                        N
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold tracking-tight text-slate-900">Nova<span class="text-emerald-600">Store</span></span>
+                    </div>
+                </div>
+
+                <div class="flex-1 max-w-md hidden md:block">
+                    <div class="relative">
+                        <input id="searchInput" type="text" placeholder="Search products..." oninput="handleSearch(this.value)" class="w-full pl-10 pr-4 py-2 rounded-full border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-sm bg-slate-50 transition-all">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 text-xs font-medium text-slate-600">
+                        <span>User:</span>
+                        <input id="currentUserId" type="number" value="1001" min="1" onchange="changeUser()" class="w-14 bg-transparent font-bold text-slate-800 focus:outline-none text-center">
+                    </div>
+
+                    <button onclick="openAdminModal()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Inventory</span>
+                    </button>
+
+                    <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        <span id="cartBadge" class="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pb-3 md:hidden">
+                <input type="text" placeholder="Search products..." oninput="handleSearch(this.value)" class="w-full pl-4 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-slate-50">
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-white py-10 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Azure Ready Catalog</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Discover Premium Quality Products</h1>
+                <p class="text-slate-300 text-sm max-w-xl">Browse curated categories, manage your personal cart, and experience seamless instant checkout with integrated shipping calculation.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openCategoryTab()" class="px-4 py-2.5 rounded-xl bg-white text-slate-900 text-sm font-semibold hover:bg-slate-100 transition shadow">Add Category</button>
+                <button onclick="openProductTab()" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500 transition shadow shadow-emerald-700/30">Add Product</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none" id="categoriesPills">
+            <button onclick="filterCategory(null)" class="category-pill active px-4 py-2 rounded-full text-sm font-medium transition bg-slate-900 text-white shadow-sm" data-cat="all">All Items</button>
+        </div>
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 id="catalogTitle" class="text-xl font-bold text-slate-900">All Products</h2>
+            <span id="productCount" class="text-xs text-slate-500 font-medium">0 items found</span>
+        </div>
+
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        </div>
+
+        <div id="emptyState" class="hidden text-center py-20 bg-white rounded-2xl border border-slate-200">
+            <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+            <h3 class="text-base font-semibold text-slate-800">No products match your criteria</h3>
+            <p class="text-slate-500 text-xs mt-1">Try another search term or select a different category.</p>
+        </div>
+    </main>
+
+    <div id="cartDrawerBackdrop" onclick="toggleCartDrawer()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900">Your Cart</h3>
+                    <p class="text-xs text-slate-500">User ID: <span id="cartDrawerUser">1001</span></p>
+                </div>
+            </div>
+            <button onclick="toggleCartDrawer()" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div id="cartItemsList" class="flex-1 overflow-y-auto p-5 space-y-4">
+        </div>
+
+        <div id="cartEmpty" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            <h4 class="font-semibold text-slate-800">Your cart is empty</h4>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs">Explore products from our catalog and add items to your cart.</p>
+        </div>
+
+        <div class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-500">Subtotal</span>
+                <span id="cartSubtotal" class="font-bold text-slate-900 text-lg">Rs. 0.00</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500">
+                <span>Shipping Delivery</span>
+                <span class="text-emerald-600 font-medium">Calculated at checkout</span>
+            </div>
+            <button id="checkoutBtn" onclick="processCheckout()" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2">
+                <span>Place Order & Checkout</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="checkoutModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl p-6 transform transition-all text-center">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900">Order Placed!</h3>
+            <p class="text-slate-500 text-xs mt-1">Thank you for your purchase. Your shipment has been scheduled.</p>
+
+            <div class="bg-slate-50 rounded-2xl p-4 my-5 text-left border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500">Estimated Delivery:</span>
+                    <span id="orderDeliveryTime" class="font-bold text-emerald-600">3 working days</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500">Amount Paid:</span>
+                    <span id="orderPaidAmount" class="font-bold text-slate-900">Rs. 0.00</span>
+                </div>
+                <div class="pt-2 border-t border-slate-200">
+                    <span class="text-xs font-semibold text-slate-600 block mb-1">Products for Delivery:</span>
+                    <ul id="orderProductsList" class="text-xs text-slate-600 space-y-1"></ul>
+                </div>
+            </div>
+
+            <button onclick="closeCheckoutModal()" class="w-full py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition">Continue Shopping</button>
+        </div>
+    </div>
+
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-lg bg-slate-200 text-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Manage Catalog & Inventory</h3>
+                </div>
+                <button onclick="closeAdminModal()" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex border-b border-slate-200 bg-slate-100/60 p-1">
+                <button id="tabBtnProduct" onclick="switchAdminTab('product')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-white shadow-sm text-slate-900 transition">New Product</button>
+                <button id="tabBtnCategory" onclick="switchAdminTab('category')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">New Category</button>
+            </div>
+
+            <div class="p-6">
+                <form id="productForm" onsubmit="submitProduct(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Product ID</label>
+                            <input id="prodId" type="number" required placeholder="e.g. 501" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Category</label>
+                            <select id="prodCategory" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Product Name</label>
+                        <input id="prodName" type="text" required placeholder="e.g. Ergonomic Office Chair" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Price (Rs.)</label>
+                            <input id="prodPrice" type="number" step="0.01" min="1" required placeholder="e.g. 1299" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Stock</label>
+                            <input id="prodStock" type="number" min="0" required placeholder="e.g. 20" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm rounded-xl transition shadow">Add Product</button>
+                </form>
+
+                <form id="categoryForm" onsubmit="submitCategory(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Category ID</label>
+                        <input id="catId" type="number" required placeholder="e.g. 5" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Category Name</label>
+                        <input id="catName" type="text" required placeholder="e.g. Footwear & Accessories" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl transition shadow">Create Category</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold text-white bg-slate-900">
+            <span id="toastIcon"></span>
+            <span id="toastMsg">Notification message</span>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            NovaStore E-Commerce &bull; Deployed on Microsoft Azure &bull; High Performance Backend
+        </div>
+    </footer>
+
+    <script>
+        let currentUserId = 1001;
+        let selectedCategory = null;
+        let searchQuery = '';
+        let categoriesData = [];
+        let productsData = [];
+
+        async function init() {
+            await loadCategories();
+            await loadProducts();
+            await loadCart();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastContent = document.getElementById('toastContent');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = message;
+            if (type === 'success') {
+                toastContent.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold text-white bg-emerald-600';
+                toastIcon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+            } else {
+                toastContent.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold text-white bg-rose-600';
+                toastIcon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch('/api/categories');
+                const data = await res.json();
+                categoriesData = data;
+
+                const pillsContainer = document.getElementById('categoriesPills');
+                pillsContainer.innerHTML = '<button onclick="filterCategory(null)" class="category-pill active px-4 py-2 rounded-full text-sm font-medium transition bg-slate-900 text-white shadow-sm" data-cat="all">All Items</button>';
+
+                const selectEl = document.getElementById('prodCategory');
+                selectEl.innerHTML = '';
+
+                data.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-pill px-4 py-2 rounded-full text-sm font-medium transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 whitespace-nowrap shadow-sm';
+                    btn.setAttribute('data-cat', cat.category_id);
+                    btn.innerText = cat.category_name;
+                    btn.onclick = () => filterCategory(cat.category_id, cat.category_name);
+                    pillsContainer.appendChild(btn);
+
+                    const opt = document.createElement('option');
+                    opt.value = cat.category_id;
+                    opt.innerText = `${cat.category_id} - ${cat.category_name}`;
+                    selectEl.appendChild(opt);
+                });
+            } catch (err) {
+                showToast('Failed to load categories', 'error');
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                let url = '/api/products';
+                const params = new URLSearchParams();
+                if (selectedCategory) params.append('category_id', selectedCategory);
+                if (searchQuery) params.append('search', searchQuery);
+                if (params.toString()) url += `?${params.toString()}`;
+
+                const res = await fetch(url);
+                const data = await res.json();
+                productsData = data;
+                renderProducts();
+            } catch (err) {
+                showToast('Failed to load products', 'error');
+            }
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const empty = document.getElementById('emptyState');
+            const countEl = document.getElementById('productCount');
+
+            grid.innerHTML = '';
+            countEl.innerText = `${productsData.length} items found`;
+
+            if (productsData.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            } else {
+                empty.classList.add('hidden');
+            }
+
+            productsData.forEach(p => {
+                const isOutOfStock = p.stock <= 0;
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition duration-200 flex flex-col justify-between';
+                card.innerHTML = `
+                    <div class="p-5">
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700">
+                                ${p.category_name || 'Category ' + p.category_id}
+                            </span>
+                            <span class="text-[11px] font-bold ${isOutOfStock ? 'text-rose-600 bg-rose-50' : 'text-slate-600 bg-slate-100'} px-2 py-0.5 rounded-full">
+                                ${isOutOfStock ? 'Out of stock' : p.stock + ' in stock'}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">${p.product_name}</h4>
+                        <p class="text-xs text-slate-400 mt-1">ID: #${p.product_id}</p>
+                    </div>
+
+                    <div class="p-5 pt-0 mt-auto">
+                        <div class="flex items-baseline justify-between mb-4">
+                            <div>
+                                <span class="text-xs text-slate-400">Price</span>
+                                <div class="text-xl font-extrabold text-slate-900">Rs. ${parseFloat(p.price).toFixed(2)}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <input id="qty-${p.product_id}" type="number" value="1" min="1" max="${p.stock}" ${isOutOfStock ? 'disabled' : ''} class="w-16 px-2.5 py-2 text-center text-sm font-semibold border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                            <button onclick="addToCart(${p.product_id})" ${isOutOfStock ? 'disabled' : ''} class="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                <span>Add to Cart</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCategory(catId, catName) {
+            selectedCategory = catId;
+            document.querySelectorAll('.category-pill').forEach(btn => {
+                if ((!catId && btn.getAttribute('data-cat') === 'all') || btn.getAttribute('data-cat') == catId) {
+                    btn.className = 'category-pill active px-4 py-2 rounded-full text-sm font-medium transition bg-slate-900 text-white shadow-sm';
+                } else {
+                    btn.className = 'category-pill px-4 py-2 rounded-full text-sm font-medium transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 whitespace-nowrap shadow-sm';
+                }
+            });
+            document.getElementById('catalogTitle').innerText = catName ? catName : 'All Products';
+            loadProducts();
+        }
+
+        let debounceTimeout;
+        function handleSearch(val) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                searchQuery = val.trim();
+                loadProducts();
+            }, 300);
+        }
+
+        function changeUser() {
+            const inputVal = parseInt(document.getElementById('currentUserId').value);
+            if (inputVal && inputVal > 0) {
+                currentUserId = inputVal;
+                document.getElementById('cartDrawerUser').innerText = currentUserId;
+                loadCart();
+                showToast(`Switched active user to #${currentUserId}`);
+            }
+        }
+
+        async function addToCart(productId) {
+            const qtyInput = document.getElementById(`qty-${productId}`);
+            const quantity = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+
+            try {
+                const res = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        product_id: productId,
+                        quantity: quantity
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.error || 'Could not add to cart', 'error');
+                } else {
+                    showToast(data.message || 'Added to cart!');
+                    await loadCart();
+                }
+            } catch (err) {
+                showToast('Failed to add item to cart', 'error');
+            }
+        }
+
+        async function loadCart() {
+            try {
+                const res = await fetch(`/api/cart/${currentUserId}`);
+                const data = await res.json();
+
+                const badge = document.getElementById('cartBadge');
+                const list = document.getElementById('cartItemsList');
+                const empty = document.getElementById('cartEmpty');
+                const subtotalEl = document.getElementById('cartSubtotal');
+                const checkoutBtn = document.getElementById('checkoutBtn');
+
+                const totalItemsCount = (data.items || []).reduce((acc, it) => acc + parseInt(it.quantity), 0);
+                badge.innerText = totalItemsCount;
+
+                list.innerHTML = '';
+                subtotalEl.innerText = `Rs. ${parseFloat(data.subtotal || 0).toFixed(2)}`;
+
+                if (!data.items || data.items.length === 0) {
+                    empty.classList.remove('hidden');
+                    list.classList.add('hidden');
+                    checkoutBtn.disabled = true;
+                    checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    return;
+                }
+
+                empty.classList.add('hidden');
+                list.classList.remove('hidden');
+                checkoutBtn.disabled = false;
+                checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                data.items.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between gap-3';
+                    row.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <h5 class="text-sm font-bold text-slate-800 truncate">${item.product_name}</h5>
+                            <p class="text-xs text-slate-400">Rs. ${parseFloat(item.unit_price).toFixed(2)} each</p>
+                            <span class="text-xs font-semibold text-emerald-600">Total: Rs. ${parseFloat(item.line_total).toFixed(2)}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+                                <button onclick="updateCartQty(${item.product_id}, ${item.quantity - 1})" class="px-2 py-1 text-slate-600 hover:bg-slate-200 text-xs font-bold transition">-</button>
+                                <span class="px-2 py-1 text-xs font-bold text-slate-800">${item.quantity}</span>
+                                <button onclick="updateCartQty(${item.product_id}, ${item.quantity + 1})" class="px-2 py-1 text-slate-600 hover:bg-slate-200 text-xs font-bold transition">+</button>
+                            </div>
+                            <button onclick="removeFromCart(${item.product_id})" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) {
+                showToast('Failed to load cart', 'error');
+            }
+        }
+
+        async function updateCartQty(productId, newQty) {
+            try {
+                const res = await fetch('/api/cart', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        product_id: productId,
+                        quantity: newQty
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.error || 'Failed to update quantity', 'error');
+                } else {
+                    await loadCart();
+                }
+            } catch (err) {
+                showToast('Error updating cart', 'error');
+            }
+        }
+
+        async function removeFromCart(productId) {
+            try {
+                const res = await fetch('/api/cart', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        product_id: productId
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.error || 'Failed to remove', 'error');
+                } else {
+                    showToast('Item removed from cart');
+                    await loadCart();
+                }
+            } catch (err) {
+                showToast('Error removing item', 'error');
+            }
+        }
+
+        async function processCheckout() {
+            try {
+                const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUserId })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.error || 'Checkout failed', 'error');
+                    return;
+                }
+
+                toggleCartDrawer();
+                document.getElementById('orderDeliveryTime').innerText = data.shipping.delivery_time;
+                document.getElementById('orderPaidAmount').innerText = `Rs. ${parseFloat(data.subtotal).toFixed(2)}`;
+
+                const orderList = document.getElementById('orderProductsList');
+                orderList.innerHTML = '';
+                data.shipping.products.forEach(p => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between py-1 border-b border-slate-100 last:border-0';
+                    li.innerHTML = `<span>${p.product_name} &times; ${p.quantity}</span><span class="text-slate-400">#${p.product_id}</span>`;
+                    orderList.appendChild(li);
+                });
+
+                document.getElementById('checkoutModal').classList.remove('hidden');
+                await loadProducts();
+                await loadCart();
+            } catch (err) {
+                showToast('Checkout failed', 'error');
+            }
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cartDrawer');
+            const backdrop = document.getElementById('cartDrawerBackdrop');
+            const isOpen = !drawer.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                drawer.classList.add('translate-x-full');
+                backdrop.classList.add('hidden');
+            } else {
+                drawer.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+                loadCart();
+            }
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function switchAdminTab(tab) {
+            const prodForm = document.getElementById('productForm');
+            const catForm = document.getElementById('categoryForm');
+            const tabProd = document.getElementById('tabBtnProduct');
+            const tabCat = document.getElementById('tabBtnCategory');
+
+            if (tab === 'product') {
+                prodForm.classList.remove('hidden');
+                catForm.classList.add('hidden');
+                tabProd.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-white shadow-sm text-slate-900 transition';
+                tabCat.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
+            } else {
+                prodForm.classList.add('hidden');
+                catForm.classList.remove('hidden');
+                tabCat.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-white shadow-sm text-slate-900 transition';
+                tabProd.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
+            }
+        }
+
+        function openCategoryTab() {
+            openAdminModal();
+            switchAdminTab('category');
+        }
+
+        function openProductTab() {
+            openAdminModal();
+            switchAdminTab('product');
+        }
+
+        async function submitCategory(e) {
+            e.preventDefault();
+            const category_id = document.getElementById('catId').value;
+            const category_name = document.getElementById('catName').value;
+
+            try {
+                const res = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category_id, category_name })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.error || 'Failed to create category', 'error');
+                } else {
+                    showToast('Category created successfully!');
+                    document.getElementById('catId').value = '';
+                    document.getElementById('catName').value = '';
+                    await loadCategories();
+                    closeAdminModal();
+                }
+            } catch (err) {
+                showToast('Network error creating category', 'error');
+            }
+        }
+
+        async function submitProduct(e) {
+            e.preventDefault();
+            const product_id = document.getElementById('prodId').value;
+            const product_name = document.getElementById('prodName').value;
+            const category_id = document.getElementById('prodCategory').value;
+            const price = document.getElementById('prodPrice').value;
+            const stock = document.getElementById('prodStock').value;
+
+            try {
+                const res = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id, product_name, category_id, price, stock })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.error || 'Failed to create product', 'error');
+                } else {
+                    showToast('Product added successfully!');
+                    document.getElementById('prodId').value = '';
+                    document.getElementById('prodName').value = '';
+                    document.getElementById('prodPrice').value = '';
+                    document.getElementById('prodStock').value = '';
+                    await loadProducts();
+                    closeAdminModal();
+                }
+            } catch (err) {
+                showToast('Network error creating product', 'error');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
